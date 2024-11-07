@@ -1,0 +1,41 @@
+﻿version: '3'
+
+volumes:
+  pms_db_data:
+    driver: local
+  redis_data:
+    driver: local
+
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  
+  db:
+    image: postgis/postgis:17-3.5
+    container_name: cfinterview_svc_db
+    volumes:
+      - pms_db_data:/var/lib/postgresql/data
+      - ./_docker/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    shm_size: 512mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cfinterview_svc_db
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: cfinterview_svc_redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
